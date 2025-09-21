@@ -104,7 +104,7 @@ useEffect(() => {
               <div className="flex items-center gap-2 justify-center">
                 <Shield size={16} className="text-blue-600" />
                 <span className="text-blue-800 text-sm font-medium">
-                  Demo user available: john123 / john@example.com
+                  Grid Auth : The Future of Grid Based Authentication System
                 </span>
               </div>
             </div>
@@ -146,7 +146,7 @@ useEffect(() => {
 
       {/* Footer */}
       <footer className="text-center py-6 text-gray-500 text-sm">
-        <p>Powered by React + TypeScript • Secure Grid Authentication System</p>
+        <p>Made with Love by Team GridLock </p>
         <p className="mt-1">
           Users registered: {users.length} • 
           Current mode: <span className="font-medium capitalize">{currentMode}</span>
