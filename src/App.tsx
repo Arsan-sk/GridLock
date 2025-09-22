@@ -75,7 +75,7 @@ useEffect(() => {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Initializing Grid Auth System...</p>
+          <p className="text-gray-600">Initializing GridLock System...</p>
         </div>
       </div>
     );
@@ -91,7 +91,7 @@ useEffect(() => {
               <Grid3X3 className="text-white" size={32} />
             </div>
             <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              GridAuth System
+              GridLock System
             </h1>
           </div>
           <p className="text-gray-600 text-lg max-w-2xl mx-auto">
