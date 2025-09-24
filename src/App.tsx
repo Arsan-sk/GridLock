@@ -46,6 +46,11 @@ useEffect(() => {
       setUsers(prev => [...prev, newUser]);
       setCurrentUser(newUser);
       setCurrentMode('welcome');
+      if (!redirectUri) {
+        return;
+      }
+      const token = btoa(JSON.stringify(newUser)); // ⚠️ demo only
+      window.location.href = `${redirectUri}?token=${encodeURIComponent(token)}`;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed');
     }
@@ -57,6 +62,7 @@ useEffect(() => {
     if (!redirectUri) {
       return;
     }
+    
     const token = btoa(JSON.stringify(user)); // ⚠️ demo only
     window.location.href = `${redirectUri}?token=${encodeURIComponent(token)}`;
     
