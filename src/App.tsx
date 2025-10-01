@@ -1,20 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { Shield, Grid3X3 } from 'lucide-react';
-import { AuthMode, User, RegistrationData } from './types';
+import { AuthMode, User, RegistrationData, Session } from './types';
 import { RegistrationFlow } from './components/RegistrationFlow';
 import { LoginFlow } from './components/LoginFlow';
 import { WelcomeScreen } from './components/WelcomeScreen';
 import { Database } from './services/database';
+import { useCookies } from 'react-cookie';
+import { createSession, useNavigate } from 'react-router-dom';
+
 
 function App() {
   const [redirectUri, setRedirectUri] = useState<string | null>(null);
+  const [cookies, setCookie, removeCookie] = useCookies(["user"]);
 
-useEffect(() => {
-  const params = new URLSearchParams(window.location.search);
-  const uri = params.get("redirect-uri");
-  setRedirectUri(uri);
-  console.log("Redirect URI from URL:", uri);
-}, []);
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const uri = params.get("redirect-uri");
+    setRedirectUri(uri);
+    console.log("Redirect URI from URL:", uri);
+  }, []);
 
   const [currentMode, setCurrentMode] = useState<AuthMode>('login');
   const [users, setUsers] = useState<User[]>([]);
@@ -36,8 +40,27 @@ useEffect(() => {
       }
     };
 
+    // Check for Cookie
+    const checkCookie = async () => {
+      if (cookies.user) {
+        const gettingCurrentUser = await Database.getUserByIdentifier(cookies.user['user_id']);
+        setCurrentUser(gettingCurrentUser);
+        setCurrentMode('welcome');
+      
+        // Check if Redirect Url Exists
+        if (redirectUri) {
+          const token = btoa(JSON.stringify(gettingCurrentUser)); // ⚠️ demo only
+          window.location.href = `${redirectUri}?token=${encodeURIComponent(token)}`;
+        }
+
+      }
+    }
+    checkCookie();
+
+    console.log(cookies.user);
+
     initializeApp();
-  }, []);
+  }, [cookies.user, redirectUri]);
 
   const handleRegistrationComplete = async (data: RegistrationData) => {
     try {
@@ -46,11 +69,31 @@ useEffect(() => {
       setUsers(prev => [...prev, newUser]);
       setCurrentUser(newUser);
       setCurrentMode('welcome');
+      
+      
+    const createNewSession = async () => {
+      // Create new Session in the Datbase
+      const currentSession = await Database.createUserSession(newUser.id);
+      // Set local cookie for it
+      setCookie("user", JSON.stringify({"username": newUser.username, "user_id": newUser.id, "session_id": currentSession["session_id"]}), {
+        path: "/",     // available across app
+        maxAge: 60 * 60, // 1 hour in seconds
+      });
+    };
+    createNewSession();
+
+      
+      
       if (!redirectUri) {
         return;
       }
-      const token = btoa(JSON.stringify(newUser)); // ⚠️ demo only
-      window.location.href = `${redirectUri}?token=${encodeURIComponent(token)}`;
+      else {
+        const token = btoa(JSON.stringify(newUser)); // ⚠️ demo only
+        window.location.href = `${redirectUri}?token=${encodeURIComponent(token)}`;
+      }
+
+
+
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed');
     }
@@ -59,13 +102,28 @@ useEffect(() => {
   const handleLoginComplete = (user: User) => {
     setCurrentUser(user);
     setCurrentMode('welcome');
+
+
+    const createNewSession = async () => {
+      // Create new Session in the Datbase
+      const currentSession = await Database.createUserSession(user.id);
+      // Set local cookie for it
+      setCookie("user", JSON.stringify({"username": user.username, "user_id": user.id, "session_id": currentSession["session_id"]}), {
+        path: "/",     // available across app
+        maxAge: 60 * 60, // 1 hour in seconds
+      });
+    };
+    createNewSession();
+
     if (!redirectUri) {
       return;
     }
-    
-    const token = btoa(JSON.stringify(user)); // ⚠️ demo only
-    window.location.href = `${redirectUri}?token=${encodeURIComponent(token)}`;
-    
+    else {
+      // const token = btoa(JSON.stringify(cookies.user));
+      const token = btoa(JSON.stringify(user)) // ⚠️ demo only
+      window.location.href = `${redirectUri}?token=${encodeURIComponent(token)}`;
+    }
+
   };
 
   const handleModeChange = (mode: AuthMode) => {
@@ -97,14 +155,15 @@ useEffect(() => {
               <Grid3X3 className="text-white" size={32} />
             </div>
             <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              GridLock System
+              GridLock Systems
+              {cookies.user ? ` - Welcome ${cookies.user["username"]}` : ""}
             </h1>
           </div>
           <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-            Experience next-generation security with our innovative grid-based authentication. 
+            Experience next-generation security with our innovative grid-based authentication.
             Create unique password grids and color patterns for ultimate protection.
           </p>
-          
+
           {users.length > 0 && currentMode !== 'welcome' && (
             <div className="mt-4 p-3 bg-blue-100 rounded-lg border border-blue-200 max-w-md mx-auto">
               <div className="flex items-center gap-2 justify-center">
@@ -154,7 +213,7 @@ useEffect(() => {
       <footer className="text-center py-6 text-gray-500 text-sm">
         <p>Made with Love by Team GridLock </p>
         <p className="mt-1">
-          Users registered: {users.length} • 
+          Users registered: {users.length} •
           Current mode: <span className="font-medium capitalize">{currentMode}</span>
         </p>
       </footer>

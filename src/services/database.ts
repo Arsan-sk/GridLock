@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import { User, RegistrationData } from '../types';
+import { User, RegistrationData, Session } from '../types';
 
 // Get Supabase credentials from environment variables
 // const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -52,6 +52,43 @@ export class Database {
     return newUser as User;
   }
 
+
+  // Insert new Session
+  static async createUserSession(userId: string): Promise<Session> {
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + 1); // Session valid for 1 hour
+
+    const { data: newSession, error: insertError } = await supabase
+      .from('sessions')
+      .insert([{
+        user_id: userId,
+        expires_at: expiresAt.toISOString()
+      }])
+      .select()
+      .single();
+
+    if (insertError) {
+      throw new Error(`Failed to create session: ${insertError.message}`);
+    }
+
+    return newSession as Session;
+  }
+
+    // Delete a Session Linked to a user_id or session id 
+    static async deleteUserSession(identifier: string): Promise<null> {
+      const { data: deleteSession, error: deleteError} = await supabase
+      .from('sessions')
+      .delete()
+      .eq("user_id", identifier);
+      if (deleteError) {
+        throw new Error(`Failed to create session: ${deleteError.message}`);
+      }
+
+      return deleteSession;
+    }
+
+
+
   static async getUsers(): Promise<User[]> {
     const { data: users, error } = await supabase
       .from('users')
@@ -69,7 +106,7 @@ export class Database {
     const { data: users, error } = await supabase
       .from('users')
       .select('*')
-      .or(`username.eq.${identifier},email.eq.${identifier}`)
+      .or(`username.eq.${identifier},email.eq.${identifier},id.eq.${identifier}`)
       .limit(1);
 
     if (error) {

@@ -1,6 +1,8 @@
 import React from 'react';
 import { LogOut, User, Calendar, Grid } from 'lucide-react';
 import { User as UserType, AuthMode } from '../types';
+import { useCookies } from 'react-cookie';
+import { Database } from '../services/database';
 
 interface WelcomeScreenProps {
   user: UserType;
@@ -8,8 +10,16 @@ interface WelcomeScreenProps {
 }
 
 export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ user, onModeChange }) => {
-  const handleLogout = () => {
+  const [cookies, setCookie, removeCookie] = useCookies(["user"]);
+
+  const handleLogout = () => {  
+    // Removing the Cookies
+    removeCookie("user", { path: "/" });
+    // Deleting Database Entry
+    Database.deleteUserSession(user.id);
     onModeChange('login');
+
+
   };
 
   const formatDate = (dateString: string) => {

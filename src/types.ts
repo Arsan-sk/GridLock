@@ -28,5 +28,13 @@ export interface LoginData {
   grid_pattern: GridData;
 }
 
+export interface Session {
+  sessionid: string;
+  user_id: string;
+  created_at: string;
+  expires_at: string;
+}
+
+
 export type AuthStep = 1 | 2 | 3;
 export type AuthMode = 'register' | 'login' | 'welcome';
