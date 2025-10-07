@@ -3,7 +3,7 @@ import { LogOut, User, Calendar, Grid } from 'lucide-react';
 import { User as UserType, AuthMode } from '../types';
 import { useCookies } from 'react-cookie';
 import { Database } from '../services/database';
-import { PasswordReveal } from './PasswordReveal';
+import { PasswordReveal } from './PasswordReveal.tsx';
 
 interface WelcomeScreenProps {
   user: UserType;

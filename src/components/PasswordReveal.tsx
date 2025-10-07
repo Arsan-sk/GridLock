@@ -202,7 +202,7 @@ export const PasswordReveal: React.FC<{
         </div>
 
         {!verified ? (
-          <>
+          <>git commit -m
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Text verification (no placeholder) */}
               <div className="space-y-2">
