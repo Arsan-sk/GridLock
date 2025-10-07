@@ -3,38 +3,41 @@ export interface User {
   full_name: string;
   username: string;
   email: string;
-  grid_password: GridData;
-  grid_pattern: GridData;
+  phone_number?: string;                 // new optional phone field
+  grid_password: string[][];               // dynamic n x n
+  grid_pattern: string[][];                // dynamic m x m
+  password_grid_size: number;              // n
+  pattern_grid_size: number;               // m
   created_at: string;
 }
 
 export interface GridData {
-  row1: [string, string, string];
-  row2: [string, string, string];
-  row3: [string, string, string];
+  // Now dynamic; represented by string[][]
 }
 
 export interface RegistrationData {
   full_name: string;
   username: string;
   email: string;
-  grid_password: GridData;
-  grid_pattern: GridData;
+  phone_number?: string;                  // new optional phone field
+  grid_password: string[][];               // dynamic
+  grid_pattern: string[][];                // dynamic
+  password_grid_size: number;              // n
+  pattern_grid_size: number;               // m
 }
 
 export interface LoginData {
   identifier: string;
-  grid_password: GridData;
-  grid_pattern: GridData;
+  grid_password: string[][];
+  grid_pattern: string[][];
 }
 
 export interface Session {
-  sessionid: string;
+  session_id: string;
   user_id: string;
   created_at: string;
   expires_at: string;
 }
-
 
 export type AuthStep = 1 | 2 | 3;
 export type AuthMode = 'register' | 'login' | 'welcome';

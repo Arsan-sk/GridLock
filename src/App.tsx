@@ -6,12 +6,26 @@ import { LoginFlow } from './components/LoginFlow';
 import { WelcomeScreen } from './components/WelcomeScreen';
 import { Database } from './services/database';
 import { useCookies } from 'react-cookie';
-import { createSession, useNavigate } from 'react-router-dom';
 
 
 function App() {
   const [redirectUri, setRedirectUri] = useState<string | null>(null);
-  const [cookies, setCookie, removeCookie] = useCookies(["user"]);
+  const [cookies, setCookie, removeCookie] = useCookies(['user']);
+
+  // Helper: parse cookie value safely (handles string or object)
+  const parseUserCookie = (raw: any) => {
+    if (!raw) return null;
+    if (typeof raw === 'string') {
+      try {
+        return JSON.parse(raw);
+      } catch {
+        return null;
+      }
+    }
+    return raw;
+  };
+  
+  const parsedCookieUser = parseUserCookie(cookies.user);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -42,22 +56,28 @@ function App() {
 
     // Check for Cookie
     const checkCookie = async () => {
-      if (cookies.user) {
-        const gettingCurrentUser = await Database.getUserByIdentifier(cookies.user['user_id']);
-        setCurrentUser(gettingCurrentUser);
-        setCurrentMode('welcome');
-      
-        // Check if Redirect Url Exists
-        if (redirectUri) {
-          const token = btoa(JSON.stringify(gettingCurrentUser)); // ⚠️ demo only
-          window.location.href = `${redirectUri}?token=${encodeURIComponent(token)}`;
+      const userObj = parseUserCookie(cookies.user);
+      if (userObj && userObj.user_id) {
+        try {
+          const gettingCurrentUser = await Database.getUserByIdentifier(userObj.user_id);
+          if (gettingCurrentUser) {
+            setCurrentUser(gettingCurrentUser);
+            setCurrentMode('welcome');
+            
+            // Check if Redirect Url Exists
+            if (redirectUri) {
+              const token = btoa(JSON.stringify(gettingCurrentUser)); // ⚠️ demo only
+              window.location.href = `${redirectUri}?token=${encodeURIComponent(token)}`;
+            }
+          }
+        } catch (err) {
+          console.warn('Failed to resolve cookie user:', err);
         }
-
       }
     }
     checkCookie();
 
-    console.log(cookies.user);
+    console.log('cookie user (raw):', cookies.user, 'parsed:', parsedCookieUser);
 
     initializeApp();
   }, [cookies.user, redirectUri]);
@@ -75,7 +95,7 @@ function App() {
       // Create new Session in the Datbase
       const currentSession = await Database.createUserSession(newUser.id);
       // Set local cookie for it
-      setCookie("user", JSON.stringify({"username": newUser.username, "user_id": newUser.id, "session_id": currentSession["session_id"]}), {
+      setCookie("user", { username: newUser.username, user_id: newUser.id, session_id: currentSession["session_id"] }, {
         path: "/",     // available across app
         maxAge: 60 * 60, // 1 hour in seconds
       });
@@ -108,7 +128,7 @@ function App() {
       // Create new Session in the Datbase
       const currentSession = await Database.createUserSession(user.id);
       // Set local cookie for it
-      setCookie("user", JSON.stringify({"username": user.username, "user_id": user.id, "session_id": currentSession["session_id"]}), {
+      setCookie("user", { username: user.username, user_id: user.id, session_id: currentSession["session_id"] }, {
         path: "/",     // available across app
         maxAge: 60 * 60, // 1 hour in seconds
       });

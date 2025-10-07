@@ -1,38 +1,27 @@
 import { GridData } from '../types';
 
-export const createEmptyGrid = (): GridData => ({
-  row1: ['', '', ''],
-  row2: ['', '', ''],
-  row3: ['', '', '']
-});
-
-export const createWhiteGrid = (): GridData => ({
-  row1: ['white', 'white', 'white'],
-  row2: ['white', 'white', 'white'],
-  row3: ['white', 'white', 'white']
-});
-
-export const isGridEmpty = (grid: GridData): boolean => {
-  return Object.values(grid).every(row => 
-    row.every(cell => cell === '' || cell === 'white')
-  );
+export const createEmptyGrid = (n = 3): string[][] => {
+  return Array.from({ length: n }, () => Array.from({ length: n }, () => ''));
 };
 
-export const hasAtLeastOneFilledCell = (grid: GridData): boolean => {
-  return Object.values(grid).some(row => 
-    row.some(cell => cell !== '' && cell !== 'white')
-  );
+export const createWhiteGrid = (n = 3): string[][] => {
+  return Array.from({ length: n }, () => Array.from({ length: n }, () => 'white'));
 };
 
-export const compareGrids = (grid1: GridData, grid2: GridData): boolean => {
-  const rows1 = Object.values(grid1);
-  const rows2 = Object.values(grid2);
-  
-  for (let i = 0; i < 3; i++) {
-    for (let j = 0; j < 3; j++) {
-      if (rows1[i][j] !== rows2[i][j]) {
-        return false;
-      }
+export const isGridEmpty = (grid: string[][]): boolean => {
+  return grid.every(row => row.every(cell => cell === '' || cell === 'white'));
+};
+
+export const hasAtLeastOneFilledCell = (grid: string[][]): boolean => {
+  return grid.some(row => row.some(cell => cell !== '' && cell !== 'white'));
+};
+
+export const compareGrids = (grid1: string[][], grid2: string[][]): boolean => {
+  if (!grid1 || !grid2) return false;
+  if (grid1.length !== grid2.length) return false;
+  for (let i = 0; i < grid1.length; i++) {
+    for (let j = 0; j < grid1[i].length; j++) {
+      if (grid1[i][j] !== grid2[i]?.[j]) return false;
     }
   }
   return true;
@@ -51,6 +40,7 @@ export const getNextColor = (currentColor: string): string => {
 export const getColorClass = (color: string): string => {
   const colorMap: Record<string, string> = {
     white: 'bg-white border-gray-300',
+    black: 'bg-black border-black',
     blue: 'bg-blue-500 border-blue-600',
     green: 'bg-green-500 border-green-600',
     red: 'bg-red-500 border-red-600',

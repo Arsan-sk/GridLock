@@ -7,6 +7,7 @@
       - `full_name` (text, required)
       - `username` (text, unique, required)
       - `email` (text, unique, required)
+      - `phone_number` (text, nullable)
       - `grid_password` (jsonb, stores 3x3 grid password data)
       - `grid_pattern` (jsonb, stores 3x3 color pattern data)
       - `created_at` (timestamp, auto-generated)
@@ -26,8 +27,11 @@ CREATE TABLE IF NOT EXISTS users (
   full_name text NOT NULL,
   username text UNIQUE NOT NULL,
   email text UNIQUE NOT NULL,
-  grid_password jsonb NOT NULL,
-  grid_pattern jsonb NOT NULL,
+  phone_number text,                        -- new optional phone number
+  grid_password jsonb NOT NULL,             -- stores array of arrays (password grid)
+  grid_pattern jsonb NOT NULL,              -- stores array of arrays (color pattern)
+  password_grid_size int NOT NULL DEFAULT 3,
+  pattern_grid_size int NOT NULL DEFAULT 3,
   created_at timestamptz DEFAULT now()
 );
 
@@ -53,15 +57,21 @@ INSERT INTO users (
   full_name,
   username,
   email,
+  phone_number,
   grid_password,
   grid_pattern,
+  password_grid_size,
+  pattern_grid_size,
   created_at
 ) VALUES (
   'd1cbe02b-73c6-49b9-8241-32e8cd8a1e90',
   'John Doe',
   'john123',
   'john@example.com',
-  '{"row1": ["", "12", ""], "row2": ["", "ab", ""], "row3": ["", "", ""]}',
-  '{"row1": ["white", "blue", "white"], "row2": ["green", "red", "white"], "row3": ["white", "white", "blue"]}',
+  '+10000000000',
+  '[["", "12", ""], ["", "ab", ""], ["", "", ""]]'::jsonb,
+  '[["white", "blue", "white"], ["green", "red", "white"], ["white", "white", "blue"]]'::jsonb,
+  3,
+  3,
   '2025-01-21T12:34:56Z'
 ) ON CONFLICT (id) DO NOTHING;

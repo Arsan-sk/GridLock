@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, ArrowRight, LogIn } from 'lucide-react';
+import { ArrowLeft, ArrowRight, LogIn, Eye, EyeOff } from 'lucide-react';
 import { AuthStep, LoginData, AuthMode, User } from '../types';
 import { createEmptyGrid, createWhiteGrid, compareGrids } from '../utils/gridUtils';
 import { GridPassword } from './GridPassword';
@@ -20,11 +20,13 @@ export const LoginFlow: React.FC<LoginFlowProps> = ({
   const [currentStep, setCurrentStep] = useState<AuthStep>(1);
   const [formData, setFormData] = useState<LoginData>({
     identifier: '',
-    grid_password: createEmptyGrid(),
-    grid_pattern: createWhiteGrid()
+    grid_password: createEmptyGrid(3),
+    grid_pattern: createWhiteGrid(3)
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [showPasswordGrid, setShowPasswordGrid] = useState<boolean>(true);
+  const [showPatternGrid, setShowPatternGrid] = useState<boolean>(true);
 
   const validateStep1 = (): boolean => {
     if (!formData.identifier.trim()) {
@@ -41,6 +43,15 @@ export const LoginFlow: React.FC<LoginFlowProps> = ({
       return false;
     }
     
+    // Initialize grids to user's sizes
+    const pwSize = user.password_grid_size || (user.grid_password?.length || 3);
+    const patSize = user.pattern_grid_size || (user.grid_pattern?.length || 3);
+    setFormData({
+      identifier: formData.identifier,
+      grid_password: createEmptyGrid(pwSize),
+      grid_pattern: createWhiteGrid(patSize)
+    });
+
     setCurrentUser(user);
     setErrors({});
     return true;
@@ -144,7 +155,18 @@ export const LoginFlow: React.FC<LoginFlowProps> = ({
   const renderStep2 = () => (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-2xl font-bold text-gray-800">Enter Your Grid Password</h2>
+        <div className="flex items-center justify-center gap-2">
+          <h2 className="text-2xl font-bold text-gray-800">Enter Your Grid Password</h2>
+          <button
+            type="button"
+            aria-pressed={showPasswordGrid}
+            onClick={() => setShowPasswordGrid((s) => !s)}
+            className="ml-2 p-1 rounded border hover:bg-gray-50"
+            title={showPasswordGrid ? 'Hide password grid content' : 'Show password grid content'}
+          >
+            {showPasswordGrid ? <Eye size={16} /> : <EyeOff size={16} />}
+          </button>
+        </div>
         <p className="text-gray-600 mt-2">
           Welcome back, <span className="font-medium">{currentUser?.full_name}</span>
         </p>
@@ -154,6 +176,7 @@ export const LoginFlow: React.FC<LoginFlowProps> = ({
         grid={formData.grid_password}
         onChange={(grid) => setFormData({ ...formData, grid_password: grid })}
         disabled={false}
+        masked={!showPasswordGrid}
       />
       
       {errors.grid_password && (
@@ -165,7 +188,18 @@ export const LoginFlow: React.FC<LoginFlowProps> = ({
   const renderStep3 = () => (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-2xl font-bold text-gray-800">Recreate Your Color Pattern</h2>
+        <div className="flex items-center justify-center gap-2">
+          <h2 className="text-2xl font-bold text-gray-800">Recreate Your Color Pattern</h2>
+          <button
+            type="button"
+            aria-pressed={showPatternGrid}
+            onClick={() => setShowPatternGrid((s) => !s)}
+            className="ml-2 p-1 rounded border hover:bg-gray-50"
+            title={showPatternGrid ? 'Hide pattern colors' : 'Show pattern colors'}
+          >
+            {showPatternGrid ? <Eye size={16} /> : <EyeOff size={16} />}
+          </button>
+        </div>
         <p className="text-gray-600 mt-2">Final step to complete your secure login</p>
       </div>
       
@@ -173,6 +207,7 @@ export const LoginFlow: React.FC<LoginFlowProps> = ({
         grid={formData.grid_pattern}
         onChange={(grid) => setFormData({ ...formData, grid_pattern: grid })}
         disabled={false}
+        hideColors={!showPatternGrid}
       />
       
       {errors.grid_pattern && (

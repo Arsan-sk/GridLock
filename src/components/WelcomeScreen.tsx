@@ -3,6 +3,7 @@ import { LogOut, User, Calendar, Grid } from 'lucide-react';
 import { User as UserType, AuthMode } from '../types';
 import { useCookies } from 'react-cookie';
 import { Database } from '../services/database';
+import { PasswordReveal } from './PasswordReveal';
 
 interface WelcomeScreenProps {
   user: UserType;
@@ -11,6 +12,7 @@ interface WelcomeScreenProps {
 
 export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ user, onModeChange }) => {
   const [cookies, setCookie, removeCookie] = useCookies(["user"]);
+  const [showReveal, setShowReveal] = React.useState(false);
 
   const handleLogout = () => {  
     // Removing the Cookies
@@ -18,8 +20,6 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ user, onModeChange
     // Deleting Database Entry
     Database.deleteUserSession(user.id);
     onModeChange('login');
-
-
   };
 
   const formatDate = (dateString: string) => {
@@ -33,14 +33,14 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ user, onModeChange
   };
 
   const countFilledGridCells = () => {
-    const passwordCells = Object.values(user.grid_password)
-      .flat()
-      .filter(cell => cell !== '').length;
-    
-    const patternCells = Object.values(user.grid_pattern)
-      .flat()
-      .filter(cell => cell !== 'white').length;
-    
+    const passwordCells = Array.isArray(user.grid_password)
+      ? (user.grid_password as string[][]).flat().filter(cell => cell !== '').length
+      : 0;
+
+    const patternCells = Array.isArray(user.grid_pattern)
+      ? (user.grid_pattern as string[][]).flat().filter(cell => cell !== 'white').length
+      : 0;
+
     return { password: passwordCells, pattern: patternCells };
   };
 
@@ -58,13 +58,24 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ user, onModeChange
               You've successfully logged in with your unique grid authentication system.
             </p>
           </div>
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium transition-all"
-          >
-            <LogOut size={18} />
-            Logout
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowReveal(true)}
+              className="flex items-center gap-2 bg-blue-50 hover:bg-blue-100 text-blue-700 px-4 py-2 rounded-lg font-medium transition-all"
+              title="Show stored grids (verification required)"
+            >
+              <Grid size={16} />
+              Show Password
+            </button>
+
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium transition-all"
+            >
+              <LogOut size={18} />
+              Logout
+            </button>
+          </div>
         </div>
 
         <div className="grid md:grid-cols-2 gap-6">
@@ -101,11 +112,15 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ user, onModeChange
             <div className="space-y-3">
               <div>
                 <span className="text-sm font-medium text-gray-600">Grid Password Cells:</span>
-                <p className="text-gray-800 font-medium">{gridStats.password} of 9 filled</p>
+                <p className="text-gray-800 font-medium">
+                  {gridStats.password} of {(user.password_grid_size || (user.grid_password?.length || 3)) ** 2} filled
+                </p>
               </div>
               <div>
                 <span className="text-sm font-medium text-gray-600">Color Pattern Cells:</span>
-                <p className="text-gray-800 font-medium">{gridStats.pattern} of 9 colored</p>
+                <p className="text-gray-800 font-medium">
+                  {gridStats.pattern} of {(user.pattern_grid_size || (user.grid_pattern?.length || 3)) ** 2} colored
+                </p>
               </div>
               <div className="flex items-center gap-2 mt-4">
                 <div className="w-3 h-3 bg-green-500 rounded-full"></div>
@@ -143,6 +158,13 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ user, onModeChange
           </p>
         </div>
       </div>
+
+      {showReveal && (
+        <PasswordReveal
+          user={user}
+          onClose={() => setShowReveal(false)}
+        />
+      )}
     </div>
   );
 };
