@@ -254,11 +254,10 @@ export const PasswordReveal: React.FC<{
           <>
             {/* After verification: centered title with show/hide icon centered, controls on right */}
             <div className="flex items-center justify-between mb-4">
-              <div className="flex-1"></div>
 
               <div className="flex-1 text-center flex items-center justify-center gap-3">
                 <h2 className="text-xl font-semibold text-gray-800">Your stored grids</h2>
-                <button
+                {/* <button
                   className="p-2 rounded border hover:bg-gray-50"
                   onClick={() => {
                     const newShow = !showAll;
@@ -272,14 +271,14 @@ export const PasswordReveal: React.FC<{
                   title=""
                 >
                   {showAll ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
+                </button> */}
               </div>
 
-              <div className="flex-1 flex justify-end gap-2">
+              {/* <div className="flex-1 flex justify-end gap-2">
                 <button onClick={() => setViewIndex((v) => Math.max(0, v - 1))} className="p-2 rounded border hover:bg-gray-50"><ArrowLeft size={16} /></button>
                 <button onClick={() => setViewIndex((v) => Math.min(1, v + 1))} className="p-2 rounded border hover:bg-gray-50"><ArrowRight size={16} /></button>
                 <button onClick={onClose} className="p-2 rounded border hover:bg-gray-50"><X size={16} /></button>
-              </div>
+              </div> */}
             </div>
 
             <div onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} className="overflow-hidden">
