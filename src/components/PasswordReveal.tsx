@@ -173,7 +173,7 @@ export const PasswordReveal: React.FC<{
           <div className="flex-1"></div>
 
           <div className="flex-1 text-center flex items-center justify-center gap-3">
-            <h2 className="text-xl font-semibold text-gray-800">Verify to show your stored grids</h2>
+            <h2 className="text-xl font-semibold text-gray-800">See Your Password</h2>
             <button
               className="p-2 rounded border hover:bg-gray-50"
               onClick={() => {
@@ -202,7 +202,9 @@ export const PasswordReveal: React.FC<{
         </div>
 
         {!verified ? (
-          <>git commit -m
+          <>
+            <h2 className="text-xl font-semibold mb-5 text-gray-800">Verify Your Self</h2>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Text verification (no placeholder) */}
               <div className="space-y-2">
