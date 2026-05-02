@@ -39,7 +39,7 @@ This makes GridLock a **three-factor authentication system** — identity + grid
 
 The diagram below illustrates how GridLock connects the user, the relying party (your client app), the GridLock auth server, and the backend database.
 
-![GridLock OIDC Authentication Flow Diagram](./gridlock_oidc_flow_1777715887562.png)
+![GridLock OIDC Authentication Flow Diagram](./gridlock_oidc_flow.png)
 
 ### Actors
 
